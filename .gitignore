@@ -25,6 +25,7 @@
 # Ignore all data files
 *.csv
 *.ipynb
+*.numbers
 
 # Ignore individual files
 .Rhistory

@@ -1,6 +1,7 @@
 library(httr)
 library(readr)
-library(renv) # https://posit.co/blog/renv-project-environments-for-r/ Quick start guide for 'renv'
+#library(renv) # https://posit.co/blog/renv-project-environments-for-r/ Quick start guide for 'renv'
+#install.packages("reticulate")
 library(reticulate)
 use_virtualenv('/Users/alanjackson/Environments/alphaVantageAPI/myEnv')
 
@@ -58,7 +59,7 @@ getLatestTickerSymbols = function(API_KEY){
   return(stocks)
 }
 stocks = getLatestTickerSymbols(PREMIUM_API_KEY)
-write_csv(stocks, 'allActiveTickers.csv')
+write_csv(stocks, paste0('allActiveTickers_', Sys.Date(), '.csv'))
 
 # Source 'myEnv' Python "AVDataClient" Script 
 source_python(paste0(path, "AVDataClient.py"))
@@ -68,7 +69,6 @@ source_python(paste0(path, "AVDataClient.py"))
 # daily_data <- getHistoricalDailyPrices(paste0(path, "allActiveTickers.csv"), PREMIUM_API_KEY)
 
 filename <- "allActiveTickers_2024-05-24.csv"
-
 fundamentals <- getLatestFundamentalsData(filename, PREMIUM_API_KEY)
 weekly_data <- getHistoricalWeeklyPrices(filename, PREMIUM_API_KEY)
 eps_data <- getEPSdata(filename, PREMIUM_API_KEY)
