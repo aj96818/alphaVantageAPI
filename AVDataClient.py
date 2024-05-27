@@ -29,6 +29,63 @@ def tickerCSVtoList(filename):
     return symbolList
 
 
+
+def getLatestTickerSymbols(api_key):
+    url = f"https://www.alphavantage.co/query?function=LISTING_STATUS&apikey={api_key}"
+    response = requests.get(url)
+    parsed_data = response.text
+    
+    # Initialize empty lists to store parsed data
+    symbol = []
+    name = []
+    exchange = []
+    asset_type = []
+    ipo_date = []
+    delisting_date = []
+    status = []
+    
+    # Use csv.reader to split data into lines and fields
+    reader = csv.reader(parsed_data.splitlines())
+    
+    # Skip the header line if it exists
+    header = next(reader, None)
+    
+    for row in reader:
+        if row:  # Skip empty lines
+            symbol.append(row[0])
+            name.append(row[1])
+            exchange.append(row[2])
+            asset_type.append(row[3])
+            ipo_date.append(row[4])
+            delisting_date.append(row[5])
+            status.append(row[6])
+    
+    # Create a pandas DataFrame from the lists
+    data = {
+        "symbol": symbol,
+        "name": name,
+        "exchange": exchange,
+        "asset_type": asset_type,
+        "ipo_date": ipo_date,
+        "delisting_date": delisting_date,
+        "status": status
+    }
+    df = pd.DataFrame(data)
+    df = df[df['status'] == 'Active']
+    
+    # Get today's date and format it
+    today = datetime.date.today().strftime('%Y-%m-%d')
+    
+    # Create the filename with today's date appended
+    filename = f"allTickersAsOf_{today}.csv"
+    
+    # Save the DataFrame to a CSV file
+    df.to_csv(filename, index=False)
+    
+    return filename
+
+
+
 def getLatestFundamentalsData(filename, API_KEY):
     tickers = tickerCSVtoList(filename)
     df_list = []
