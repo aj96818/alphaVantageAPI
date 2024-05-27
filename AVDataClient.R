@@ -1,12 +1,18 @@
 library(httr)
 library(readr)
-library(renv) # https://posit.co/blog/renv-project-environments-for-r/ Quick start guide for 'renv'
+#library(renv) # https://posit.co/blog/renv-project-environments-for-r/ Quick start guide for 'renv'
 library(reticulate)
+
 use_virtualenv('/Users/alanjackson/Environments/alphaVantageAPI/myEnv')
 
-source("~/Environments/alphaVantageAPI/AVcredentials.R")
+
+# Steps for cloning project into fresh directory:
+# https://stackoverflow.com/questions/41427500/creating-a-virtualenv-with-preinstalled-packages-as-in-requirements-txt
 path = "/Users/alanjackson/Environments/alphaVantageAPI/"
 setwd(path)
+
+
+source("AVcredentials.R")
 
 getLatestTickerSymbols = function(API_KEY){
   url <- paste0("https://www.alphavantage.co/query?function=LISTING_STATUS&apikey=", API_KEY)
