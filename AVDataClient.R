@@ -5,7 +5,6 @@ library(reticulate)
 
 use_virtualenv('/Users/alanjackson/Environments/alphaVantageAPI/myEnv')
 
-
 # Steps for cloning project into fresh directory:
 # https://stackoverflow.com/questions/41427500/creating-a-virtualenv-with-preinstalled-packages-as-in-requirements-txt
 path = "/Users/alanjackson/Environments/alphaVantageAPI/"
@@ -13,6 +12,12 @@ setwd(path)
 
 
 source("AVcredentials.R")
+
+
+# Source 'myEnv' Python "AVDataClient" Script 
+source_python(paste0(path, "AVDataClient.py"))
+
+
 
 getLatestTickerSymbols = function(API_KEY){
   url <- paste0("https://www.alphavantage.co/query?function=LISTING_STATUS&apikey=", API_KEY)
@@ -66,8 +71,6 @@ getLatestTickerSymbols = function(API_KEY){
 stocks = getLatestTickerSymbols(PREMIUM_API_KEY)
 write_csv(stocks, 'allActiveTickers.csv')
 
-# Source 'myEnv' Python "AVDataClient" Script 
-source_python(paste0(path, "AVDataClient.py"))
 
 # Fundamentals Data for all stocks last downloaded on 5/12/24 "av_fundamentals_all_tickers.csv"
 # fun_data <- getLatestFundamentalsData(paste0(path, "allActiveTickers.csv"), PREMIUM_API_KEY)
