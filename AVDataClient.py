@@ -29,7 +29,6 @@ def tickerCSVtoList(filename):
     return symbolList
 
 
-
 def getLatestTickerSymbols(api_key):
     url = f"https://www.alphavantage.co/query?function=LISTING_STATUS&apikey={api_key}"
     response = requests.get(url)
@@ -85,7 +84,6 @@ def getLatestTickerSymbols(api_key):
     return filename
 
 
-
 def getLatestFundamentalsData(filename, API_KEY):
     tickers = tickerCSVtoList(filename)
     df_list = []
@@ -127,7 +125,17 @@ def getLatestFundamentalsData(filename, API_KEY):
                 error_file.write(f"{ticker}\n")
 
     if len(df_list) > 0:
+        
+        # Get today's date and format it
+        today = datetime.date.today().strftime('%Y-%m-%d')
+    
+        # Create the filename with today's date appended
+        fname = f"allFundamentalsDataAsOf_{today}.csv"
+       
+        # Save the DataFrame to a CSV file
+        # final_df.to_csv(fname, index=False)
         return final_df
+
     else:
         print("No data returned; check error tickers file.")
 
@@ -177,6 +185,48 @@ def getHistoricalDailyPrices(filename, API_KEY):
     master_df = pd.concat(df_list, ignore_index=True)
     df_out = master_df[(master_df['date'] >= '2015-01-01')]
     return df_out
+
+
+def getLatestWeeklyPrices(filename, API_KEY):
+    tickers = tickerCSVtoList(filename)
+    df_list = []
+    for ticker in tickers:
+        try:
+            API_URL = "https://www.alphavantage.co/query" 
+            data = { 
+                "function": 'TIME_SERIES_WEEKLY_ADJUSTED', 
+                "symbol": ticker,
+                "outputsize": "compact",
+                "datatype": "json", 
+                "apikey": API_KEY,
+                "outputsize": "compact"
+            }
+
+            response = requests.get(API_URL, data)
+            response_json = response.json()
+
+            date_list = []
+            data_list = []
+
+            for date, data in response_json['Weekly Adjusted Time Series'].items():
+                date_list.append(date)
+                data_list.append(data)
+
+            df_date = pd.DataFrame(date_list)
+            df_data = pd.DataFrame(data_list)
+
+            df = pd.concat([df_date, df_data], axis=1)
+            df['Symbol'] = ticker
+            df_list.append(df)
+            time.sleep(2)
+
+        except Exception as e:
+            print(f"Error fetching data for {ticker}: {e}")
+
+    master_df = pd.concat(df_list, ignore_index=True)
+    master_df = master_df.reset_index(drop=True)
+    master_df.columns = ['date', 'open', 'high', 'low', 'close', 'adj close', 'volume', 'dividend', 'symbol']
+    return master_df
 
 
 def getHistoricalWeeklyPrices(filename, API_KEY):
@@ -230,7 +280,7 @@ def getEPSdata(filename, API_KEY):
             data = { 
                 "function": 'EARNINGS', 
                 "symbol": ticker,
-                "outputsize" : "compact",
+                "outputsize" : "full",
                 "datatype": "json", 
                 "apikey": API_KEY}
 
